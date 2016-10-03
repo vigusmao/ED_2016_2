@@ -91,7 +91,46 @@ void remover(LISTA_ENCADEADA* lista, ELEMENTO* elemento) {
     }
 
     lista->tamanho--;
-    //free(elemento);
+    free(elemento);
+}
+
+void remover_por_DRE(LISTA_ENCADEADA* lista, int DRE) {
+    remover(lista, buscar_por_DRE(lista, DRE));
+}
+
+void destruir(LISTA_ENCADEADA* lista) {
+    ELEMENTO* elemento = lista->primeiro;
+    ELEMENTO* proximo;
+    while (elemento != NULL) {
+        proximo = elemento->proximo;
+        free(elemento);
+        elemento = proximo;
+    }
+    free(lista);
+}
+
+void concat(LISTA_ENCADEADA* lista1, LISTA_ENCADEADA* lista2) {
+    if (lista1 == NULL) {
+        // LEVANTARIA UMA EXCECAO
+        return;
+    }
+    if (lista2 == NULL) {
+        return;  // OK, apenas nao faca nada
+    }
+
+    if (lista1->tamanho > 0) {
+        lista1->ultimo->proximo = lista2->primeiro;
+    } else {
+        lista1->primeiro = lista2->primeiro;
+    }
+
+    if (lista2->tamanho > 0) {
+        lista2->primeiro->anterior = lista1->ultimo;
+        lista1->ultimo = lista2->ultimo;
+    }
+
+    lista1->tamanho += lista2->tamanho;
+    free(lista2);
 }
 
 int main() {
@@ -112,13 +151,27 @@ int main() {
         printf("Nao encontrei\n");
     }
 
+    printf("Antes de remover: nome do aluno = %s\n", aluno->nome);
     remover(minha_lista, aluno);
-
+    printf("Depois de remover: nome do aluno = %s\n", aluno->nome);
     imprimir_lista(minha_lista);
-
     append(minha_lista, 999, "Novo Cara", 2.2);
-
     imprimir_lista(minha_lista);
+    printf("Depois do append: nome do aluno = %s\n", aluno->nome);
+
+    LISTA_ENCADEADA* outra_lista = criar_lista();
+    append(outra_lista, 1, "Um", 1.1);
+    append(outra_lista, 2, "Dois", 2.2);
+
+    printf("Vou concatenar!\n");
+    concat(minha_lista, outra_lista);
+    imprimir_lista(minha_lista);
+
+    printf("Vou destruir!\n");
+    destruir(minha_lista);
+    printf("tamanho da lista destruida = %d\n", minha_lista->tamanho);
+    minha_lista = NULL;
+
 
 }
 
